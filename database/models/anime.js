@@ -17,7 +17,9 @@ module.exports = (sequelize, DataTypes) => {
     title: DataTypes.STRING,
     episodios: DataTypes.INTEGER,
     fecha_ini: DataTypes.DATE,
-    fecha_fin: DataTypes.DATE
+    fecha_fin: DataTypes.DATE,
+    image_url: DataTypes.STRING,
+    image_public_id: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Anime',
