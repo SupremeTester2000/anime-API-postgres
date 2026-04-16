@@ -19,6 +19,21 @@ server.options('*', cors(corsOptions));
 server.use(express.json({ limit: '50mb' }));
 server.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Root route
+server.get('/', (req, res) => {
+  res.json({
+    message: 'Anime API v1.2.0',
+    status: 'running',
+    endpoints: {
+      getAllAnimes: 'GET /api/animes',
+      getAnimeById: 'GET /api/animes/:id',
+      createAnime: 'POST /api/animes',
+      updateAnime: 'PUT /api/animes/:id',
+      deleteAnime: 'DELETE /api/animes/:id'
+    }
+  });
+});
+
 server.use('/api', routes);
 
 module.exports = server;
