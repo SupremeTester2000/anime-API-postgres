@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: anime-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false # Configurar manualmente por seguridad
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false # Configurar manualmente por seguridad
+      - key: CLOUDINARY_API_KEY
+        sync: false # Configurar manualmente por seguridad
+      - key: CLOUDINARY_API_SECRET
+        sync: false # Configurar manualmente por seguridad
+    healthCheckPath: /api/animes
+    autoDeploy: true
