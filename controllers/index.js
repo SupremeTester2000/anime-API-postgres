@@ -5,11 +5,12 @@ const { uploadImage, removeImage } = require('../config/cloudinary');
 const createAnime = async (req, res) => {
     try {
         console.log('createAnime called');
-        console.log('body:', req.body);
+        console.log('body:', JSON.stringify(req.body));
         console.log('file(s):', req.file || req.files);
+        
         const { title, episodios, fecha_ini, fecha_fin, image_url: imageUrlBody } = req.body;
 
-        if (!title) {
+        if (!title || !title.trim()) {
             return res.status(400).json({ error: 'Title is required' });
         }
 
@@ -20,23 +21,34 @@ const createAnime = async (req, res) => {
 
         // Caso 1: Imagen subida como archivo
         if (file && file.buffer) {
-            const uploadedImage = await uploadImage(file.buffer);
-            image_url = uploadedImage.secure_url;
-            image_public_id = uploadedImage.public_id;
+            try {
+                const uploadedImage = await uploadImage(file.buffer);
+                image_url = uploadedImage.secure_url;
+                image_public_id = uploadedImage.public_id;
+                console.log('Image uploaded successfully:', image_public_id);
+            } catch (uploadError) {
+                console.error('Image upload failed:', uploadError);
+                return res.status(400).json({ error: `Image upload failed: ${uploadError.message}` });
+            }
         }
         // Caso 2: Imagen por URL (opcional)
-        else if (imageUrlBody) {
-            image_url = imageUrlBody;
+        else if (imageUrlBody && imageUrlBody.trim()) {
+            image_url = imageUrlBody.trim();
+            console.log('Using image URL:', image_url);
         }
 
-        const anime = await models.Anime.create({
-            title,
-            episodios,
-            fecha_ini,
-            fecha_fin,
+        const animeData = {
+            title: title.trim(),
+            episodios: episodios ? parseInt(episodios) : null,
+            fecha_ini: fecha_ini || null,
+            fecha_fin: fecha_fin || null,
             image_url,
             image_public_id
-        });
+        };
+
+        console.log('Creating anime with data:', animeData);
+
+        const anime = await models.Anime.create(animeData);
 
         return res.status(201).json({
             message: 'Anime created successfully',
@@ -44,8 +56,9 @@ const createAnime = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('createAnime error:', error);
-        return res.status(500).json({ error: error.message });
+        console.error('createAnime error:', error.message);
+        console.error('Error stack:', error.stack);
+        return res.status(500).json({ error: `Server error: ${error.message}` });
     }
 };
 
